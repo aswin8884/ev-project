@@ -6,13 +6,13 @@ import L from 'leaflet'
 
 import { 
   FaLocationArrow, FaSpinner, FaCarSide, FaChargingStation, 
-  FaMapPin, FaEuroSign, FaSatellite 
+  FaMapPin, FaEuroSign, FaSatellite, FaPlus, FaMinus 
 } from 'react-icons/fa'
 
 import icon from 'leaflet/dist/images/marker-icon.png'
 import iconShadow from 'leaflet/dist/images/marker-shadow.png'
 
-// Fix for default Leaflet marker icons in React
+// Fix for default Leaflet marker icons
 let DefaultIcon = L.icon({
     iconUrl: icon,
     shadowUrl: iconShadow,
@@ -21,23 +21,24 @@ let DefaultIcon = L.icon({
 })
 L.Marker.prototype.options.icon = DefaultIcon
 
-// Helper component to handle map movement
-function MapPanner({ center }) {
+// Helper component to handle map movement and zoom
+function MapController({ center, zoomLevel }) {
   const map = useMap();
+  
   useEffect(() => {
-    if (center) map.flyTo(center, 12, { duration: 1.5 });
+    if (center) map.flyTo(center, map.getZoom(), { duration: 1.5 });
   }, [center, map]);
+
   return null;
 }
 
 export default function MapDisplay({ range }) {
-  // Initialize as null to prevent "jumping" from a random location
   const [location, setLocation] = useState(null) 
   const [stations, setStations] = useState([])
   const [loadingLoc, setLoadingLoc] = useState(false)
   const [gpsError, setGpsError] = useState(false)
+  const [mapInstance, setMapInstance] = useState(null); // Reference to the actual map
 
-  // 1. Function to fetch GPS coordinates
   const getGPSLocation = () => {
     setLoadingLoc(true);
     setGpsError(false);
@@ -52,30 +53,27 @@ export default function MapDisplay({ range }) {
           console.error("GPS Error:", error);
           setGpsError(true);
           setLoadingLoc(false);
-          // Fallback to a default center (Stuttgart) if user denies permission
-          setLocation([48.7758, 9.1829]);
+          setLocation([48.7758, 9.1829]); // Fallback to Stuttgart
         },
         { enableHighAccuracy: true, timeout: 8000 }
       );
     } else {
       setGpsError(true);
       setLoadingLoc(false);
-      setLocation([48.7758, 9.1829]); // Fallback
+      setLocation([48.7758, 9.1829]);
     }
   };
 
-  // 2. Fetch location immediately when component mounts
   useEffect(() => {
     getGPSLocation();
   }, []);
 
-  // 3. Fetch Local Charging Stations when location is found
   useEffect(() => {
     if (!location) return;
 
     const fetchStations = async () => {
       try {
-        const localSearchRadius = 15000; // 15km search radius
+        const localSearchRadius = 15000; 
         const query = `[out:json];node[amenity=charging_station](around:${localSearchRadius},${location[0]},${location[1]});out 50;`;
         const response = await fetch(`https://overpass-api.de/api/interpreter?data=${encodeURIComponent(query)}`);
         const data = await response.json();
@@ -84,14 +82,20 @@ export default function MapDisplay({ range }) {
         console.error("Fetch error:", err);
       }
     };
-
     fetchStations();
   }, [location]);
 
-  // If no range calculation has been made yet, keep the map hidden (Parent control)
+  // Zoom Handlers
+  const handleZoomIn = () => {
+    if (mapInstance) mapInstance.zoomIn();
+  };
+
+  const handleZoomOut = () => {
+    if (mapInstance) mapInstance.zoomOut();
+  };
+
   if (!range) return null;
 
-  // Show a "Locating..." screen instead of a blank map or wrong city
   if (!location && !gpsError) {
     return (
       <div className="w-full h-full flex flex-col items-center justify-center bg-slate-950 text-slate-400 gap-4">
@@ -117,43 +121,63 @@ export default function MapDisplay({ range }) {
         </div>
       </div>
 
-      {/* Manual GPS Re-center Button */}
-      <button 
-        onClick={getGPSLocation} 
-        disabled={loadingLoc}
-        className="absolute bottom-10 right-10 z-[1000] p-4 bg-cyan-500 text-slate-900 rounded-2xl shadow-lg hover:bg-cyan-400 active:scale-90 transition-all group"
-      >
-        {loadingLoc ? <FaSpinner className="animate-spin text-xl" /> : <FaLocationArrow className="text-xl group-hover:rotate-12 transition-transform" />}
-      </button>
+      {/* Control Group: Zoom & GPS */}
+      <div className="absolute bottom-10 right-10 z-[1000] flex flex-col gap-3">
+        {/* Zoom Controls */}
+        <div className="flex flex-col bg-slate-900/90 backdrop-blur-md border border-slate-700 rounded-2xl shadow-xl overflow-hidden">
+          <button 
+            onClick={handleZoomIn}
+            className="p-4 text-cyan-400 hover:bg-slate-800 transition-colors border-b border-slate-700"
+            title="Zoom In"
+          >
+            <FaPlus />
+          </button>
+          <button 
+            onClick={handleZoomOut}
+            className="p-4 text-cyan-400 hover:bg-slate-800 transition-colors"
+            title="Zoom Out"
+          >
+            <FaMinus />
+          </button>
+        </div>
+
+        {/* GPS Button */}
+        <button 
+          onClick={getGPSLocation} 
+          disabled={loadingLoc}
+          className="p-4 bg-cyan-500 text-slate-900 rounded-2xl shadow-lg hover:bg-cyan-400 active:scale-90 transition-all group"
+          title="Re-center Map"
+        >
+          {loadingLoc ? <FaSpinner className="animate-spin text-xl" /> : <FaLocationArrow className="text-xl group-hover:rotate-12 transition-transform" />}
+        </button>
+      </div>
 
       <MapContainer 
         center={location || [48.7758, 9.1829]} 
         zoom={12} 
         scrollWheelZoom={true} 
-        zoomControl={false} // Clean look
+        zoomControl={false} 
+        ref={setMapInstance} // Capture the map instance
         style={{ height: "100%", width: "100%", background: "#020617" }}
       >
-        <MapPanner center={location} />
+        <MapController center={location} />
         
-        {/* Dark Mode Map Tiles */}
         <TileLayer
           attribution='&copy; <a href="https://carto.com/">CartoDB</a>'
           url="https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png"
         />
         
-        {/* Your Car Marker */}
         {location && (
           <Marker position={location}>
             <Popup className="custom-popup">
               <div className="p-2">
                 <h3 className="flex items-center gap-2 font-bold text-slate-900"><FaCarSide className="text-cyan-600" /> Your Vehicle</h3>
-                <p className="text-xs text-slate-500">Currently analyzing nearby chargers...</p>
+                <p className="text-xs text-slate-500">Telemetry Active</p>
               </div>
             </Popup>
           </Marker>
         )}
 
-        {/* Charging Stations Cluster */}
         <MarkerClusterGroup chunkedLoading maxClusterRadius={50}>
           {stations.map((station) => {
             const tags = station.tags || {};
@@ -184,7 +208,6 @@ export default function MapDisplay({ range }) {
           })}
         </MarkerClusterGroup>
 
-        {/* Range Coverage Circle */}
         {location && (
           <Circle
             key={`circle-${range}-${location[0]}`} 
