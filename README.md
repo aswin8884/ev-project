@@ -33,6 +33,7 @@ git clone https://github.com/aswin8884/ev-project
 cd ev-project
 
 ### 2. Set up the Machine Learning Backend
+```bash
 Open a terminal and navigate to the backend folder to build the AI and start the server.
 
 # Navigate to the backend folder
