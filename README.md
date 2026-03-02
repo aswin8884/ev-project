@@ -32,7 +32,7 @@ This project is a Monorepo containing both the React frontend and the FastAPI ba
 git clone https://github.com/aswin8884/ev-project
 cd ev-project
 
-2. Set up the Machine Learning Backend
+### 2. Set up the Machine Learning Backend
 Open a terminal and navigate to the backend folder to build the AI and start the server.
 
 # Navigate to the backend folder
