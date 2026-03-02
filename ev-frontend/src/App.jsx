@@ -43,7 +43,7 @@ function App() {
     setError(null)
     
     try {
-      const response = await axios.post('http://127.0.0.1:8000/predict', {
+      const response = await axios.post('https://ev-project-q0to.onrender.com', {
         battery_percentage: battery,
         temperature_celsius: temperature,
         speed_kmh: speed,
