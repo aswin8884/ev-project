@@ -26,13 +26,14 @@ A full-stack web application that predicts the real-world driving range of an El
 ## 🚀 Step-by-Step Installation
 
 This project is a Monorepo containing both the React frontend and the FastAPI backend. You will need **Node.js** and **Python 3.8+** installed on your computer.
-
-### 1. Clone the Repository
 ```bash
+
+1. Clone the Repository
+
 git clone https://github.com/aswin8884/ev-project
 cd ev-project
 
-### 2. Set up the Machine Learning Backend
+2. Set up the Machine Learning Backend
 ```bash
 Open a terminal and navigate to the backend folder to build the AI and start the server.
 
