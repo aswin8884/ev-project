@@ -23,69 +23,22 @@ A full-stack web application that predicts the real-world driving range of an El
 
 ---
 
-## 🚀 Step-by-Step Installation
-
-This project is a Monorepo containing both the React frontend and the FastAPI backend. You will need **Node.js** and **Python 3.8+** installed on your computer.
 ```bash
-
-1. Clone the Repository
-
+# 1. Clone the repo
 git clone https://github.com/aswin8884/ev-project
 cd ev-project
 
-2. Set up the Machine Learning Backend
-```bash
-Open a terminal and navigate to the backend folder to build the AI and start the server.
-
-# Navigate to the backend folder
+# 2. Setup backend
 cd backend
-
-# Create a virtual environment
 python -m venv venv
-
-# Activate the virtual environment
-# On Mac/Linux:
-source venv/bin/activate
-# On Windows:
-venv\Scripts\activate
-
-# Install the required Python libraries
+# Activate venv:
+# Mac/Linux: source venv/bin/activate
+# Windows: venv\Scripts\activate
 pip install -r requirements.txt
-
-# Generate the physics data and train the AI model
 python train_model.py
-
-# Start the FastAPI server
 uvicorn main:app --reload
 
-The backend is now running at http://127.0.0.1:8000
-
-3. Set up the React Frontend
-Open a new, separate terminal window, leave the backend running, and navigate to the frontend folder.
-
-# Navigate to the frontend folder (from the project root)
+# 3. Setup frontend (in a new terminal)
 cd frontend
-
-# Install Node modules
 npm install
-
-# Start the React development server
 npm run dev
-
-The frontend is now running at http://localhost:5173
-
-💻 Usage
-Open your browser and go to http://localhost:5173.
-
-Adjust the telemetry sliders (Battery %, Temperature, Speed).
-
-Toggle the AC/Climate Control and Driving Mode.
-
-Click "Calculate Range". The frontend will send the data to the FastAPI backend, which runs it through the XGBoost model and instantly returns the highly accurate predicted range.
-
-🌍 Live Deployment
-Frontend: Hosted on Vercel
-
-Backend: Hosted on Render
-
-(Note: The Render backend is on a free tier and may take 1-2 minutes to "wake up" upon the very first calculation request).
