@@ -43,12 +43,14 @@ function App() {
     setError(null)
     
     try {
-        const response = await axios.post('https://ev-project-4nlf.onrender.com/predict', {        temperature_celsius: temperature,
-        speed_kmh: speed,
-        ac_on: acOn,
-        driving_mode: drivingMode,
-        traffic_condition: autoTrafficValue 
-      });
+       const response = await axios.post('https://ev-project-4nlf.onrender.com/predict', {
+        battery_percentage: parseFloat(battery),
+        temperature_celsius: parseFloat(temperature),
+        speed_kmh: parseFloat(speed),
+        ac_on: Boolean(acOn),
+        driving_mode: parseInt(drivingMode),
+        traffic_condition: parseInt(autoTrafficValue)
+});
       
       if (response.data && response.data.predicted_range_km !== undefined) {
         const finalRange = response.data.predicted_range_km * carMultiplier
