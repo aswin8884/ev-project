@@ -43,7 +43,7 @@ function App() {
     setError(null)
     
     try {
-      const response = await axios.post('https://ev-project-q0to.onrender.com', {
+      const response = await axios.post('https://ev-project-4nlf.onrender.com', {
         battery_percentage: battery,
         temperature_celsius: temperature,
         speed_kmh: speed,
