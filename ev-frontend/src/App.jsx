@@ -43,9 +43,7 @@ function App() {
     setError(null)
     
     try {
-      const response = await axios.post('https://ev-project-4nlf.onrender.com', {
-        battery_percentage: battery,
-        temperature_celsius: temperature,
+        const response = await axios.post('https://ev-project-4nlf.onrender.com/predict', {        temperature_celsius: temperature,
         speed_kmh: speed,
         ac_on: acOn,
         driving_mode: drivingMode,
