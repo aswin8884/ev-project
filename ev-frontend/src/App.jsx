@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import axios from 'axios'
-import { FaBatteryFull, FaThermometerHalf, FaTachometerAlt, FaMapPin, FaBolt } from 'react-icons/fa'
+import { FaBatteryFull, FaThermometerHalf, FaTachometerAlt, FaMapPin, FaBolt, FaSpinner } from 'react-icons/fa'
 
 // Components
 import Header from './components/Header'
@@ -43,20 +43,20 @@ function App() {
     setError(null)
     
     try {
-       const response = await axios.post('https://ev-project-4nlf.onrender.com/predict', {
+      const response = await axios.post('https://ev-project-4nlf.onrender.com/predict', {
         battery_percentage: parseFloat(battery),
         temperature_celsius: parseFloat(temperature),
         speed_kmh: parseFloat(speed),
         ac_on: Boolean(acOn),
         driving_mode: parseInt(drivingMode),
         traffic_condition: parseInt(autoTrafficValue)
-});
+      });
       
       if (response.data && response.data.predicted_range_km !== undefined) {
         const finalRange = response.data.predicted_range_km * carMultiplier
         setRange(finalRange.toFixed(1))
       } else {
-        throw new Error("Invalid response from server")
+        throw new Error("Invalid response")
       }
       
     } catch (err) {
@@ -84,24 +84,9 @@ function App() {
         <hr className="border-slate-800 my-1" />
 
         <div className="flex flex-col gap-6">
-          <div className="flex items-center gap-3">
-            <FaBatteryFull className="text-cyan-400 text-xl" /> 
-            <div className="flex-grow">
-              <Slider label="Battery Level" min="5" max="100" value={battery} unit="%" onChange={setBattery} />
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <FaThermometerHalf className="text-cyan-400 text-xl" /> 
-            <div className="flex-grow">
-              <Slider label="Outside Temp" min="-20" max="40" value={temperature} unit="°C" onChange={setTemperature} />
-            </div>
-          </div>
-          <div className="flex items-center gap-3">
-            <FaTachometerAlt className="text-cyan-400 text-xl" /> 
-            <div className="flex-grow">
-              <Slider label="Cruising Speed" min="30" max="160" value={speed} unit=" km/h" onChange={setSpeed} />
-            </div>
-          </div>
+          <Slider label="Battery Level" min="5" max="100" value={battery} unit="%" icon={<FaBatteryFull className="text-cyan-400"/>} onChange={setBattery} />
+          <Slider label="Outside Temp" min="-20" max="40" value={temperature} unit="°C" icon={<FaThermometerHalf className="text-cyan-400"/>} onChange={setTemperature} />
+          <Slider label="Cruising Speed" min="30" max="160" value={speed} unit=" km/h" icon={<FaTachometerAlt className="text-cyan-400"/>} onChange={setSpeed} />
         </div>
 
         <TrafficBadge trafficLabel={trafficLabel} trafficColor={trafficColor} />
@@ -109,7 +94,6 @@ function App() {
         {/* --- BOTTOM DASHBOARD SECTION --- */}
         <div className="mt-auto pt-4 flex flex-col gap-4">
           
-          {/* THE NEW ESTIMATED RANGE BOX */}
           <div className="bg-slate-950/80 rounded-2xl p-4 border border-slate-800 shadow-inner flex items-center justify-center min-h-[100px]">
             <ResultDisplay range={range} error={error} />
           </div>
@@ -117,48 +101,49 @@ function App() {
           <button
             onClick={getPrediction}
             disabled={loading}
-            type="button"
-            className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center gap-2 transition-all duration-300 shadow-lg cursor-pointer ${
+            className={`w-full py-4 rounded-xl font-bold text-lg flex items-center justify-center transition-all duration-300 shadow-lg ${
               loading
                 ? 'bg-slate-800 text-slate-500 cursor-not-allowed border border-slate-700'
                 : 'bg-gradient-to-r from-cyan-400 to-blue-500 text-slate-950 hover:shadow-[0_0_20px_rgba(34,211,238,0.4)] hover:scale-[1.02] active:scale-95'
             }`}
           >
             {loading ? (
-              <span className="flex items-center gap-2">
-                <svg className="animate-spin h-5 w-5" viewBox="0 0 24 24">
-                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" fill="none"></circle>
-                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Processing...
-              </span>
+              <div className="flex flex-col items-center leading-tight">
+                <span className="flex items-center gap-2 text-sm">
+                  <FaSpinner className="animate-spin" /> Waking up AI...
+                </span>
+                <span className="text-[10px] font-normal opacity-60">First run takes ~60s</span>
+              </div>
             ) : (
-              <><FaBolt /> Calculate Range</>
+              <span className="flex items-center gap-2"><FaBolt /> Calculate Range</span>
             )}
           </button>
+
+          {/* Infrastructure Note for Recruiters */}
+          <div className="flex items-center justify-center gap-2 opacity-40 hover:opacity-100 transition-opacity">
+            <div className={`w-2 h-2 rounded-full ${loading ? 'bg-yellow-500 animate-pulse' : 'bg-green-500'}`}></div>
+            <p className="text-[10px] uppercase tracking-tighter">Backend: Render Free Tier (Cold-Start Active)</p>
+          </div>
         </div>
       </aside>
 
-      {/* RIGHT MAIN AREA: Map Only */}
+      {/* RIGHT MAIN AREA */}
       <main className="w-full md:w-2/3 lg:w-3/4 flex flex-col relative h-screen bg-slate-950 overflow-hidden"> 
-        
-        {/* Floating results panel REMOVED entirely from here! */}
-
-        {/* Map Container */}
         <div className="flex-grow relative z-0 h-full w-full">
           <MapDisplay range={range} />
-          
           {!range && (
-            <div className="absolute inset-0 flex items-center justify-center text-slate-500 flex-col gap-4 bg-slate-950/80 backdrop-blur-sm z-10">
+            <div className="absolute inset-0 flex items-center justify-center text-slate-500 flex-col gap-4 bg-slate-950/80 backdrop-blur-sm z-10 text-center px-4">
                <FaMapPin className="text-5xl opacity-50 text-cyan-500 animate-pulse"/>
-               <p className="font-medium tracking-wide">Enter vehicle data and click Calculate</p>
+               <div>
+                  <p className="font-medium tracking-wide">Enter vehicle data and click Calculate</p>
+                  <p className="text-xs opacity-60 mt-2">The AI model calculates aerodynamics, temperature impact, and battery health.</p>
+               </div>
             </div>
           )}
         </div>
-
       </main>
     </div>
   )
 }
 
-export default App
+export default App;
