@@ -2,7 +2,6 @@ import { useState } from 'react'
 import axios from 'axios'
 import { FaBatteryFull, FaThermometerHalf, FaTachometerAlt, FaMapPin, FaBolt, FaSpinner } from 'react-icons/fa'
 
-// Components
 import Header from './components/Header'
 import CarSelector from './components/CarSelector'
 import DrivingModeSelector from './components/DrivingModeSelector'

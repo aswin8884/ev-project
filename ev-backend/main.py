@@ -1,4 +1,3 @@
-# main.py
 from fastapi import FastAPI, HTTPException
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
@@ -24,12 +23,12 @@ try:
     if os.path.exists(MODEL_PATH):
         # This loads the entire Pipeline (Scaler + XGBoost)
         model = joblib.load(MODEL_PATH)
-        print(f"✅ Realistic EV Model loaded from {MODEL_PATH}")
+        print(f"Realistic EV Model loaded from {MODEL_PATH}")
     else:
-        print(f"❌ Error: {MODEL_PATH} not found. Run your training script first!")
+        print(f"Error: {MODEL_PATH} not found. Run your training script first!")
         model = None
 except Exception as e:
-    print(f"❌ Error loading model: {e}")
+    print(f"Error loading model: {e}")
     model = None
 
 # Pydantic model for data validation

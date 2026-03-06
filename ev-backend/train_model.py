@@ -132,9 +132,9 @@ def main():
     print("-" * 65)
     
     # 5. Save the BEST performing model
-    print(f"\n🏆 Best Model: {best_name} with an R² of {best_score:.4f}")
+    print(f"\nBest Model: {best_name} with an R² of {best_score:.4f}")
     joblib.dump(best_model, 'ev_model.joblib')
-    print(f"✅ The {best_name} model was successfully saved as 'ev_model.joblib'!")
+    print(f"The {best_name} model was successfully saved as 'ev_model.joblib'!")
 
 if __name__ == "__main__":
     main()
