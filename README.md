@@ -7,8 +7,8 @@ and a trained regression model estimates the remaining range in real time.
 **Live demo:** https://ev-project-jade.vercel.app
 
 ![EV Range Simulator](images/ev-project_img1.png)
-![EV Range Simulator](images/ev-project_img1.png)
-![EV Range Simulator](images/ev-project_img1.png)
+![EV Range Simulator](images/ev-project_img2.png)
+![EV Range Simulator](images/ev-project_img3.png)
 
 ---
 
