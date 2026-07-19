@@ -1,44 +1,90 @@
-# EV Simulator: Telemetry & Range Prediction AI
+# EV Range Simulator
 
-A full-stack web application that predicts the real-world driving range of an Electric Vehicle (EV). Instead of relying on static, optimistic factory estimates, this app uses a highly accurate, physics-aware Machine Learning model to calculate range drops based on freezing temperatures, highway speeds, climate control, and real-time traffic.
+Predict how far an electric vehicle can travel under different driving and
+environmental conditions. A full-stack machine-learning app: enter the conditions,
+and a trained regression model estimates the remaining range in real time.
 
-## Key Features
-* **Physics-Based AI Model:** Powered by an XGBoost pipeline trained on realistic EV degradation curves (temperature penalties, aerodynamic drag, etc.).
-* **Dynamic Telemetry Dashboard:** A premium, dark-mode React UI with interactive sliders for battery, speed, and temperature.
-* **Smart Context Engine:** Automatically adjusts traffic severity based on the user's local system clock (Rush Hour vs. Clear Roads).
-* **Lightning-Fast API:** Built with FastAPI for instant ML inference and response times.
+** Live demo:** https://ev-project-jade.vercel.app/
 
-## Tech Stack
-**Frontend:**
-* React (Vite)
-* Tailwind CSS v4
-* Axios
-* React Icons & Leaflet (Map UI)
-
-**Backend:**
-* Python 3
-* FastAPI & Uvicorn
-* Scikit-Learn, Pandas, Numpy
-* XGBoost (Machine Learning)
+<!-- Add a screenshot once uploaded -->
+<!-- ![EV Range Simulator](assets/demo.png) -->
 
 ---
 
-```bash
-# 1. Clone the repo
-git clone https://github.com/aswin8884/ev-project
-cd ev-project
+## What it does
 
-# 2. Setup backend
+- Takes driving and environmental inputs (e.g. speed, temperature, load,
+  battery state)
+- Runs them through a trained **XGBoost regression** model
+- Returns an estimated driving range instantly through a clean web interface
+
+---
+
+## How it works
+
+```
+User inputs (conditions)
+        │
+        ▼
+   React frontend
+        │  (HTTP request)
+        ▼
+   FastAPI backend  ──►  XGBoost model  ──►  Predicted range
+        │
+        ▼
+   Result returned to UI
+```
+
+The XGBoost model is trained on feature-engineered data and served through an
+**async FastAPI** endpoint. The React frontend collects inputs and displays
+predictions in real time.
+
+---
+
+## Tech stack
+
+**ML:** Python · XGBoost · scikit-learn · Pandas · NumPy
+**Backend:** FastAPI (async)
+**Frontend:** React · Vite
+**Deployment:** Docker · Render
+
+---
+
+## Key engineering decisions
+
+- **XGBoost** chosen for tabular regression — strong performance on structured
+  feature data without heavy tuning
+- **Feature engineering** on driving/environmental variables to improve prediction
+  quality
+- **Async FastAPI** to keep predictions responsive
+- Clean separation between model-serving backend and React frontend
+
+---
+
+## Running locally
+
+```bash
+# Backend
 cd backend
-python -m venv venv
-# Activate venv:
-# Mac/Linux: source venv/bin/activate
-# Windows: venv\Scripts\activate
 pip install -r requirements.txt
-python train_model.py
 uvicorn main:app --reload
 
-# 3. Setup frontend (in a new terminal)
+# Frontend
 cd frontend
 npm install
 npm run dev
+```
+
+---
+
+## About
+
+Built as a self-directed project to practise the full ML product cycle — from data
+and feature engineering through model training to deploying a served model behind a
+real frontend. Developed alongside my M.Sc. in Computer Science (E-Government) at
+the University of Koblenz.
+
+> Developed with AI assistance during implementation; I understand and can explain
+> every part of the codebase.
+
+**Author:** Aswin Pulickal Binduraj · [LinkedIn](https://linkedin.com/in/aswin-pulickal) · [GitHub](https://github.com/aswin8884)
